@@ -1,6 +1,4 @@
-import 'package:easy_sidemenu/src/side_menu_display_mode.dart';
-import 'package:easy_sidemenu/src/side_menu_item.dart';
-import 'package:easy_sidemenu/src/side_menu_style.dart';
+import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:easy_sidemenu/src/side_menu_toggle.dart';
 import 'package:flutter/material.dart';
 
@@ -10,8 +8,8 @@ class SideMenu extends StatefulWidget {
   /// Page controller to control [PageView] widget
   final SideMenuController controller;
 
-  /// List of [SideMenuItem] to show them on [SideMenu]
-  final List<SideMenuItem> items;
+  /// List of [SideMenuItemsHeader] to show them on [SideMenu]
+  final List<SideMenuItemsHeader> items;
 
   /// Title widget will shows on top of all items,
   /// it can be a logo or a Title text
@@ -158,7 +156,7 @@ class _SideMenuState extends State<SideMenu> {
   @override
   Widget build(BuildContext context) {
     Global.controller = widget.controller;
-    widget.items.sort((a, b) => a.priority.compareTo(b.priority));
+    // widget.items.sort((a, b) => a.priority.compareTo(b.priority));
     Global.style = widget.style ?? SideMenuStyle();
     _currentWidth = _widthSize(
         Global.style.displayMode ?? SideMenuDisplayMode.auto, context);
@@ -170,24 +168,34 @@ class _SideMenuState extends State<SideMenu> {
       decoration: _decoration(widget.style),
       child: Stack(
         children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                if (Global.style.displayMode == SideMenuDisplayMode.compact &&
-                    showToggle)
-                  const SizedBox(
-                    height: 42,
+          Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      if (Global.style.displayMode ==
+                              SideMenuDisplayMode.compact &&
+                          showToggle)
+                        const SizedBox(
+                          height: 42,
+                        ),
+                      if (widget.title != null &&
+                          Global.displayModeState.value !=
+                              SideMenuDisplayMode.compact)
+                        widget.title!,
+                      ...widget.items,
+                    ],
                   ),
-                if (widget.title != null) widget.title!,
-                ...widget.items,
-              ],
-            ),
+                ),
+              ),
+              if ((widget.footer != null &&
+                      Global.displayModeState.value !=
+                          SideMenuDisplayMode.compact) ||
+                  (widget.footer != null && alwaysShowFooter))
+                Align(alignment: Alignment.bottomCenter, child: widget.footer!),
+            ],
           ),
-          if ((widget.footer != null &&
-                  Global.displayModeState.value !=
-                      SideMenuDisplayMode.compact) ||
-              (widget.footer != null && alwaysShowFooter))
-            Align(alignment: Alignment.bottomCenter, child: widget.footer!),
           if (Global.style.displayMode != SideMenuDisplayMode.auto &&
               showToggle)
             Padding(

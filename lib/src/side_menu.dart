@@ -39,6 +39,9 @@ class SideMenu extends StatefulWidget {
   /// Width when will our open menu collapse into the compact one
   final int? collapseWidth;
 
+  final Widget Function(Function() onTap, SideMenuDisplayMode mode)?
+      toggleWidget;
+
   /// ### Easy Sidemenu widget
   ///
   /// Sidemenu is a menu that is usually located
@@ -55,6 +58,7 @@ class SideMenu extends StatefulWidget {
     this.displayModeToggleDuration,
     this.alwaysShowFooter = false,
     this.collapseWidth = 600,
+    this.toggleWidget,
   }) : super(key: key);
 
   @override
@@ -208,28 +212,33 @@ class _SideMenuState extends State<SideMenu> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  SideMenuToggle(
-                    onTap: () {
-                      if (Global.displayModeState.value ==
-                          SideMenuDisplayMode.compact) {
-                        setState(() {
-                          Global.style.displayMode = SideMenuDisplayMode.open;
-                        });
-                      } else if (Global.displayModeState.value ==
-                          SideMenuDisplayMode.open) {
-                        setState(() {
-                          Global.style.displayMode =
-                              SideMenuDisplayMode.compact;
-                        });
-                      }
-                    },
-                  ),
+                  if (widget.toggleWidget != null)
+                    widget.toggleWidget!(
+                      onToggle,
+                      Global.displayModeState.value,
+                    )
+                  else
+                    SideMenuToggle(
+                      onTap: onToggle,
+                    ),
                 ],
               ),
             )
         ],
       ),
     );
+  }
+
+  onToggle() {
+    if (Global.displayModeState.value == SideMenuDisplayMode.compact) {
+      setState(() {
+        Global.style.displayMode = SideMenuDisplayMode.open;
+      });
+    } else if (Global.displayModeState.value == SideMenuDisplayMode.open) {
+      setState(() {
+        Global.style.displayMode = SideMenuDisplayMode.compact;
+      });
+    }
   }
 
   @override
